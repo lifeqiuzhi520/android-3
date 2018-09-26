@@ -180,6 +180,24 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         new Handler(Looper.getMainLooper()).post(this::notifyDataSetChanged);
     }
 
+    public void refreshCommentsCount(String fileId) {
+        for (OCFile file : mFiles) {
+            if (file.getRemoteId().equals(fileId)) {
+                file.setUnreadCommentsCount(0);
+                break;
+            }
+        }
+
+        for (OCFile file : mFilesAll) {
+            if (file.getRemoteId().equals(fileId)) {
+                file.setUnreadCommentsCount(0);
+                break;
+            }
+        }
+
+        new Handler(Looper.getMainLooper()).post(this::notifyDataSetChanged);
+    }
+
     public void setEncryptionAttributeForItemID(String fileId, boolean encrypted) {
         int filesSize = mFiles.size();
         for (int i = 0; i < filesSize; i++) {
@@ -276,6 +294,14 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             if (holder instanceof OCFileListItemViewHolder) {
                 OCFileListItemViewHolder itemViewHolder = (OCFileListItemViewHolder) holder;
+
+                if (file.getUnreadCommentsCount() > 0) {
+                    itemViewHolder.unreadComments.setVisibility(View.VISIBLE);
+                    itemViewHolder.unreadComments.setOnClickListener(view ->
+                            ocFileListFragmentInterface.showActivityDetailView(file));
+                } else {
+                    itemViewHolder.unreadComments.setVisibility(View.GONE);
+                }
 
                 if (onlyOnDevice) {
                     File localFile = new File(file.getStoragePath());
@@ -791,6 +817,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private final TextView fileSize;
         private final TextView lastModification;
         private final ImageView overflowMenu;
+        private final ImageView unreadComments;
 
         private OCFileListItemViewHolder(View itemView) {
             super(itemView);
@@ -798,6 +825,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             fileSize = itemView.findViewById(R.id.file_size);
             lastModification = itemView.findViewById(R.id.last_mod);
             overflowMenu = itemView.findViewById(R.id.overflow_menu);
+            unreadComments = itemView.findViewById(R.id.unreadComments);
         }
     }
 
