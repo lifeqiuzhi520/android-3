@@ -75,8 +75,10 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
     @Getter @Setter private boolean availableOffline;
     private boolean mHasPreview;
 
-    @Getter private String eTag;
-    @Getter private String eTagOnServer;
+    @Getter
+    private String etag;
+    @Getter
+    private String etagOnServer;
 
     @Getter @Setter private boolean sharedViaLink;
     @Getter @Setter private String publicLink;
@@ -149,8 +151,8 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
         needsUpdatingWhileSaving = source.readInt() == 0;
         lastSyncDateForProperties = source.readLong();
         lastSyncDateForData = source.readLong();
-        eTag = source.readString();
-        eTagOnServer = source.readString();
+        etag = source.readString();
+        etagOnServer = source.readString();
         sharedViaLink = source.readInt() == 1;
         publicLink = source.readString();
         permissions = source.readString();
@@ -179,8 +181,8 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
         dest.writeInt(needsUpdatingWhileSaving ? 1 : 0);
         dest.writeLong(lastSyncDateForProperties);
         dest.writeLong(lastSyncDateForData);
-        dest.writeString(eTag);
-        dest.writeString(eTagOnServer);
+        dest.writeString(etag);
+        dest.writeString(etagOnServer);
         dest.writeInt(sharedViaLink ? 1 : 0);
         dest.writeString(publicLink);
         dest.writeString(permissions);
@@ -398,8 +400,8 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
         lastSyncDateForProperties = 0;
         lastSyncDateForData = 0;
         needsUpdatingWhileSaving = false;
-        eTag = null;
-        eTagOnServer = null;
+        etag = null;
+        etagOnServer = null;
         sharedViaLink = false;
         publicLink = null;
         permissions = null;
@@ -466,15 +468,15 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
         String asString = "[id=%s, name=%s, mime=%s, downloaded=%s, local=%s, remote=%s, " +
                 "parentId=%s, etag=%s, favourite=%s]";
         return String.format(asString, fileId, getFileName(), mimeType, isDown(), localPath, remotePath, parentId,
-                eTag, favorite);
+            etag, favorite);
     }
 
     public void setEtag(String etag) {
-        this.eTag = etag != null ? etag : "";
+        this.etag = etag != null ? etag : "";
     }
 
     public void setEtagOnServer(String etag) {
-        this.eTagOnServer = etag != null ? etag : "";
+        this.etagOnServer = etag != null ? etag : "";
     }
 
     public long getLocalModificationTimestamp() {

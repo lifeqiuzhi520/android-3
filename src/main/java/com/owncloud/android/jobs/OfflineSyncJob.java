@@ -29,6 +29,7 @@ import com.evernote.android.job.Job;
 import com.evernote.android.job.JobManager;
 import com.evernote.android.job.JobRequest;
 import com.evernote.android.job.util.Device;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.authentication.AccountUtils;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
@@ -47,7 +48,6 @@ public class OfflineSyncJob extends Job {
     public static final String TAG = "OfflineSyncJob";
 
     private static final String WAKELOCK_TAG_SEPARATION = ":";
-    private List<OfflineFile> offlineFileList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -106,6 +106,7 @@ public class OfflineSyncJob extends Job {
         }
 
         OCFile ocFolder = storageManager.getFileByPath(folderName);
+        Log_OC.d(TAG, folderName + ": currentEtag: " + ocFolder.getEtag());
 
         // check for etag change, if false, skip
         CheckEtagOperation checkEtagOperation = new CheckEtagOperation(ocFolder.getRemotePath(),
@@ -121,7 +122,7 @@ public class OfflineSyncJob extends Job {
             case FILE_NOT_FOUND:
                 boolean removalResult = storageManager.removeFolder(ocFolder, true, true);
                 if (!removalResult) {
-                    Log_OC.e(TAG, "removal of " + ocFolder.getStoragePath() + " failed");
+                    Log_OC.e(TAG, "removal of " + ocFolder.getStoragePath() + " failed: file not found");
                 }
                 return;
 

@@ -342,7 +342,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 gridViewHolder.localFileIndicator.setVisibility(View.VISIBLE);
             }
 
-            gridViewHolder.favorite.setVisibility(file.getIsFavorite() ? View.VISIBLE : View.GONE);
+            gridViewHolder.favorite.setVisibility(file.isFavorite() ? View.VISIBLE : View.GONE);
 
             if (multiSelect) {
                 gridViewHolder.checkbox.setVisibility(View.VISIBLE);
