@@ -750,7 +750,6 @@ public class FileContentProvider extends ContentProvider {
                 + ProviderTableMeta.FILE_SHARED_WITH_SHAREE + INTEGER
                 + ProviderTableMeta.FILE_MOUNT_TYPE + INTEGER
                 + ProviderTableMeta.FILE_HAS_PREVIEW + INTEGER
-                + ProviderTableMeta.FILE_MOUNT_TYPE + INTEGER
                 + ProviderTableMeta.FILE_OWNER_ID + TEXT
                 + ProviderTableMeta.FILE_OWNER_DISPLAY_NAME + " TEXT);"
         );
@@ -1848,7 +1847,7 @@ public class FileContentProvider extends ContentProvider {
             }
 
             if (oldVersion < 40 && newVersion >= 40) {
-                Log_OC.i(SQL, "Entering in the #40 add ownerId to file table");
+                Log_OC.i(SQL, "Entering in the #40 add ownerId and owner display name to file table");
                 db.beginTransaction();
                 try {
                     db.execSQL(ALTER_TABLE + ProviderTableMeta.FILE_TABLE_NAME +

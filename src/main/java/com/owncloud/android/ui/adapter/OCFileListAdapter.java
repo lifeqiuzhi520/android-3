@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -61,7 +62,6 @@ import com.owncloud.android.lib.resources.shares.ShareType;
 import com.owncloud.android.operations.RefreshFolderOperation;
 import com.owncloud.android.operations.RemoteOperationFailedException;
 import com.owncloud.android.services.OperationsService;
-import com.owncloud.android.ui.TextDrawable;
 import com.owncloud.android.ui.activity.ComponentsGetter;
 import com.owncloud.android.ui.fragment.ExtendedListFragment;
 import com.owncloud.android.ui.interfaces.OCFileListFragmentInterface;
@@ -72,7 +72,6 @@ import com.owncloud.android.utils.MimeTypeUtil;
 import com.owncloud.android.utils.ThemeUtils;
 
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +82,8 @@ import java.util.Vector;
 /**
  * This Adapter populates a RecyclerView with all files and folders in a Nextcloud instance.
  */
-public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+    implements DisplayUtils.AvatarGenerationListener {
 
     private static final int showFilenameColumnThreshold = 4;
     private final FileDownloader.FileDownloaderBinder downloaderBinder;
@@ -280,17 +280,16 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 OCFileListItemViewHolder itemViewHolder = (OCFileListItemViewHolder) holder;
 
                 if (!TextUtils.isEmpty(file.getOwnerId()) && !mAccount.name.split("@")[0].equals(file.getOwnerId())) {
-                    try {
-                        itemViewHolder.sharedAvatar.setImageDrawable(
-                                TextDrawable.createAvatarWithUserId(file.getOwnerDisplayName(),
-                                        mContext.getResources().getDimension(R.dimen.list_item_avatar_icon_radius)));
-                        itemViewHolder.sharedAvatar.setVisibility(View.VISIBLE);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
+
+                    Resources resources = mContext.getResources();
+                    itemViewHolder.sharedAvatar.setTag(file.getOwnerId());
+                    DisplayUtils.setAvatar(mAccount, file.getOwnerId(), this,
+                        resources.getDimension(R.dimen.list_item_avatar_icon_radius), resources,
+                        itemViewHolder.sharedAvatar, mContext);
+                    itemViewHolder.sharedAvatar.setVisibility(View.VISIBLE);
 
                     itemViewHolder.sharedAvatar.setOnClickListener(view ->
-                            ocFileListFragmentInterface.showShareDetailView(file));
+                        ocFileListFragmentInterface.showShareDetailView(file));
                 } else {
                     itemViewHolder.sharedAvatar.setVisibility(View.GONE);
                 }
@@ -715,6 +714,17 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mFilesFilter = new FilesFilter();
         }
         return mFilesFilter;
+    }
+
+    @Override
+    public void avatarGenerated(Drawable avatarDrawable, Object callContext) {
+        ((ImageView) callContext).setImageDrawable(avatarDrawable);
+    }
+
+    @Override
+    public boolean shouldCallGeneratedCallback(String tag, Object callContext) {
+//        return ((ImageView) callContext).getTag().equals(tag);
+        return false;
     }
 
     private class FilesFilter extends Filter {

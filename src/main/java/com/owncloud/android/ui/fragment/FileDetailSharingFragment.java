@@ -24,6 +24,7 @@ import android.accounts.Account;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,12 +49,10 @@ import com.owncloud.android.R;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.shares.OCShare;
 import com.owncloud.android.lib.resources.shares.SharePermissionsBuilder;
 import com.owncloud.android.lib.resources.shares.ShareType;
 import com.owncloud.android.lib.resources.status.OCCapability;
-import com.owncloud.android.ui.TextDrawable;
 import com.owncloud.android.ui.activity.FileActivity;
 import com.owncloud.android.ui.activity.FileDisplayActivity;
 import com.owncloud.android.ui.adapter.UserListAdapter;
@@ -68,7 +67,6 @@ import com.owncloud.android.utils.ClipboardUtil;
 import com.owncloud.android.utils.DisplayUtils;
 import com.owncloud.android.utils.ThemeUtils;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -76,7 +74,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class FileDetailSharingFragment extends Fragment implements UserListAdapter.ShareeListAdapterListener {
+public class FileDetailSharingFragment extends Fragment implements UserListAdapter.ShareeListAdapterListener,
+    DisplayUtils.AvatarGenerationListener {
 
     private static final String ARG_FILE = "FILE";
     private static final String ARG_ACCOUNT = "ACCOUNT";
@@ -128,9 +127,6 @@ public class FileDetailSharingFragment extends Fragment implements UserListAdapt
 
     @BindView(R.id.shared_with_you_username)
     TextView sharedWithYouUsername;
-
-    @BindView(R.id.shared_with_you_note)
-    TextView sharedWithYouNote;
 
     public static FileDetailSharingFragment newInstance(OCFile file, Account account) {
         FileDetailSharingFragment fragment = new FileDetailSharingFragment();
@@ -262,16 +258,12 @@ public class FileDetailSharingFragment extends Fragment implements UserListAdapt
     private void setShareWithYou() {
         if (!TextUtils.isEmpty(file.getOwnerId()) && !account.name.split("@")[0].equals(file.getOwnerId())) {
             sharedWithYouUsername.setText(
-                    String.format(getString(R.string.shared_with_you_by), file.getOwnerDisplayName()));
+                String.format(getString(R.string.shared_with_you_by), file.getOwnerDisplayName()));
 
-            try {
-                sharedWithYouAvatar.setImageDrawable(
-                        TextDrawable.createAvatarWithUserId(file.getOwnerDisplayName(),
-                                getResources().getDimension(R.dimen.list_item_avatar_icon_radius)));
-                sharedWithYouAvatar.setVisibility(View.VISIBLE);
-            } catch (NoSuchAlgorithmException e) {
-                Log_OC.d(TAG, "Avatar generation failed", e);
-            }
+            DisplayUtils.setAvatar(account, file.getOwnerId(), this, getResources().getDimension(
+                R.dimen.file_list_item_avatar_icon_radius), getResources(), sharedWithYouAvatar,
+                getContext());
+            sharedWithYouAvatar.setVisibility(View.VISIBLE);
         } else {
             sharedWithYouContainer.setVisibility(View.GONE);
         }
@@ -576,5 +568,15 @@ public class FileDetailSharingFragment extends Fragment implements UserListAdapt
 
         outState.putParcelable(FileActivity.EXTRA_FILE, file);
         outState.putParcelable(FileActivity.EXTRA_ACCOUNT, account);
+    }
+
+    @Override
+    public void avatarGenerated(Drawable avatarDrawable, Object callContext) {
+        sharedWithYouAvatar.setImageDrawable(avatarDrawable);
+    }
+
+    @Override
+    public boolean shouldCallGeneratedCallback(String tag, Object callContext) {
+        return false;
     }
 }

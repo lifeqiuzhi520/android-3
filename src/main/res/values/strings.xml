@@ -840,7 +840,6 @@
     <string name="enter_filename">Please enter a filename</string>
     <string name="create_file_from_template">Creating file from template…</string>
     <string name="error_retrieving_templates">Error retrieving templates</string>
-    <string name="note_empty">Note is empty</string>
     <string name="shared_avatar_desc">Avatar from shared user</string>
     <string name="shared_with_you_by">Shared with you by %1$s</string>
 
